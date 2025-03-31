@@ -12,7 +12,7 @@ st.set_page_config(page_title="📊 Excel Data Dashboard", layout="wide")
 tab = st.sidebar.radio(
     "",
     [
-        "Datenübersicht",
+        "Übersicht",
         "Suchagentenanalyse",
         "Tagsanalyse",
         "Top-Quellenanalyse",
@@ -40,6 +40,11 @@ def load_data(file):
     """Load the Excel file once and cache it."""
     return pd.read_excel(file) if file else None
 
+# Store DataFrame in session state to persist across tabs
+if "df" not in st.session_state or uploaded_file:
+    st.session_state.df = load_data(uploaded_file) if uploaded_file else None
+
+df = st.session_state.df
 
 # Function to filter data by timeframe
 def filter_by_timeframe(df, date_column):
@@ -95,9 +100,9 @@ if uploaded_file:
     # 📌 Tab: Data Overview
     # ---------------------- #
     
-    if tab == "Datenübersicht":
+    if tab == "Übersicht":
         
-        st.header("📊 Datenübersicht")
+        st.header("📊 Übersicht")
 
         # Total number of records
         total_records = df.shape[0]
