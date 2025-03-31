@@ -97,8 +97,8 @@ if uploaded_file:
      
 
     # ---------------------- #
-    # 📌 Tab: Data Overview
-    # ---------------------- #
+    #  Tab: Data Overview
+     ---------------------- #
     
     if tab == "Übersicht":
         
@@ -127,7 +127,7 @@ if uploaded_file:
             st.write(formatted_agents if formatted_agents else "No search agents found.")
         
         # ---------------------- #
-        # 📌 Tags Overview: Search for Tags and Remove Duplicates
+        #  Tags Overview: Search for Tags and Remove Duplicates
         # ---------------------- #
         # Collect all columns that start with 'Tag' or 'Smart-Tag'
         tag_columns_existing = [col for col in df.columns if col.startswith("Tag")]
@@ -150,7 +150,7 @@ if uploaded_file:
             st.warning("⚠ No Tag or Smart-Tag columns found in the uploaded file.")
 
     # ---------------------- #
-    # 📌 SuchagentenZeitreihe Tab
+    #  SuchagentenZeitreihe Tab
     # ---------------------- #
 
     if tab == "Suchagentenanalyse":
@@ -223,7 +223,7 @@ if uploaded_file:
                                             columns="Suchagent", 
                                             values="Count").fillna(0))
                 
-                # Pie Chart (EXACTLY AS IN ORIGINAL)
+                # Pie Chart 
                 agent_counts_total = df_melted[df_melted['Suchagent'].isin(selected_agents)]['Suchagent'].value_counts()
                 st.plotly_chart(px.pie(
                     names=agent_counts_total.index, 
@@ -233,7 +233,7 @@ if uploaded_file:
                     color_discrete_map=colors
                 ))
                 
-                # Summary Table (EXACTLY AS IN ORIGINAL)
+                # Summary Table 
                 df_agents = agent_counts_total.reset_index()
                 df_agents.columns = ["Suchagent", "Treffer"]
                 st.dataframe(df_agents)
@@ -265,8 +265,7 @@ if uploaded_file:
                                                 columns="Mediengattung",
                                                 values="Count").fillna(0))
                     
-                    # Pie Chart (EXACTLY AS IN ORIGINAL)
-                    
+                    # Pie Chart 
                     media_dist = df_filtered['Mediengattung'].value_counts().reset_index()
                     st.plotly_chart(px.pie(
                         names=media_dist["Mediengattung"], 
@@ -309,7 +308,7 @@ if uploaded_file:
                                                 columns="Bewertung",
                                                 values="Count").fillna(0))
                     
-                    # Pie Chart (EXACTLY AS IN ORIGINAL)
+                    # Pie Chart 
                     st.plotly_chart(px.pie(
                         df_ratings,
                         names="Bewertung",
@@ -322,7 +321,7 @@ if uploaded_file:
                     rating_totals = df_ratings['Bewertung'].value_counts().reset_index()
                     rating_totals.columns = ["Bewertung", "Gesamtanzahl"]
                     st.dataframe(rating_totals)
-        # 📌 TagsZeitreihe
+        # TagsZeitreihe
     # ---------------------- #
     if tab == "Tagsanalyse":
        st.subheader("📊 Tagnalyse")  # Changed title
@@ -443,7 +442,7 @@ if uploaded_file:
                 st.dataframe(pie_data.rename(columns={"Tag": "Tag", "Count": "Treffer"}))
 
             # --------------------------
-            # MEDIA TYPE ANALYSIS (Same as before)
+            # MEDIA TYPE ANALYSIS 
             # --------------------------
             if "Mediengattung" in df_filtered.columns:
                 st.subheader("Mediengattungen")
@@ -470,7 +469,7 @@ if uploaded_file:
                     st.dataframe(media_dist.rename(columns={"Mediengattung": "Media Type", "count": "Treffer"}))
 
             # --------------------------
-            # RATING ANALYSIS (Same as before)
+            # RATING ANALYSIS 
             # --------------------------
             if "Bewertung" in df_filtered.columns:
                 st.subheader("Bewertungen")
@@ -501,7 +500,7 @@ if uploaded_file:
                     st.dataframe(df_ratings['Bewertung'].value_counts().reset_index().rename(
                         columns={"index": "Bewertung", "Bewertung": "Treffer"}))
         # ---------------------- #
-        # 📌 Top-Quellen
+        #  Top-Quellen
         # ---------------------- #
     elif tab == "Top-Quellenanalyse":
             
@@ -534,10 +533,10 @@ if uploaded_file:
             else:
                 st.warning("⚠ No Suchagent values found in the uploaded file.")
 
-            # 🚀 **Filter Out 'Ohne Bewertung' and Empty Values**
+            # Filter Out 'Ohne Bewertung' and Empty Values**
             df = df[df["Quelle"].notna() & (df["Quelle"] != "")]
 
-            # 🏆 **If data exists, process it**
+            # If data exists, process it**
             if not df.empty:
                 # Aggregate Data by Quelle (Source)
                 quelle_counts = df.groupby("Quelle").size().reset_index(name="Total Treffer")
