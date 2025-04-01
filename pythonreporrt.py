@@ -96,7 +96,7 @@ if uploaded_file:
 
         # 📌 Display success message
         st.sidebar.success("File uploaded successfully! ✅")
-
+        st.write("V1.2")
      
 
     # ---------------------- #
