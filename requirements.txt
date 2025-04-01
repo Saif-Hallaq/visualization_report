@@ -3,3 +3,4 @@ openpyxl
 pandas
 streamlit
 xlsxwriter
+streamlit==1.43.2
