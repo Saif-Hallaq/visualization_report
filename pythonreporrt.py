@@ -1,8 +1,8 @@
+import time  
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 import io
-import time  
 
 
 
@@ -15,15 +15,15 @@ tab = st.sidebar.radio(
     "",
     [
         "Übersicht",
-        "Suchagentenanalyse",
-        "Tagsanalyse",
-        "Top-Quellenanalyse",
+        "Auswertungen nach Suchagenten",
+        "Auswertungen nach Tags",
+        "Auswertungen nach Quellen",
         "Datenblatt"
     ]
 )
 
 with st.sidebar:
-    uploaded_file = st.file_uploader("", type=["xls", "xlsx"])
+    uploaded_file = st.file_uploader("Datei hierhin ziehen", type=["xls", "xlsx"])
 st.markdown(
     """
     <style>
@@ -47,6 +47,7 @@ if "df" not in st.session_state or uploaded_file:
     st.session_state.df = load_data(uploaded_file) if uploaded_file else None
 
 df = st.session_state.df
+
 
 # Function to filter data by timeframe
 def filter_by_timeframe(df, date_column):
@@ -99,9 +100,8 @@ if uploaded_file:
      
 
     # ---------------------- #
-    #  Tab: Data Overview
-     #---------------------- #
-    
+    # 📌 Tab: Data Overview
+    # ---------------------- # 
     if tab == "Übersicht":
         
         st.header("📊 Übersicht")
@@ -129,7 +129,7 @@ if uploaded_file:
             st.write(formatted_agents if formatted_agents else "No search agents found.")
         
         # ---------------------- #
-        #  Tags Overview: Search for Tags and Remove Duplicates
+        # 📌 Tags Overview: Search for Tags and Remove Duplicates
         # ---------------------- #
         # Collect all columns that start with 'Tag' or 'Smart-Tag'
         tag_columns_existing = [col for col in df.columns if col.startswith("Tag")]
@@ -152,12 +152,14 @@ if uploaded_file:
             st.warning("⚠ No Tag or Smart-Tag columns found in the uploaded file.")
 
     # ---------------------- #
-    #  SuchagentenZeitreihe Tab
+    # 📌 SuchagentenZeitreihe Tab
     # ---------------------- #
 
-    if tab == "Suchagentenanalyse":
-       st.subheader("📊 Suchagentenanalyse")
-       time.sleep(1.5)
+    if tab == "Auswertungen nach Suchagenten":
+       st.subheader("📊 Auswertungen nach Suchagenten")
+       while df is None:
+                        st.warning("⏳ Preparing data... Please wait.")
+                        time.sleep(0.5)  # Small delay to prevent unnecessary CPU usage
        if search_agent_columns:
             # Apply filters
             df = filter_by_timeframe(df, "Veröffentlichungsdatum")
@@ -225,7 +227,7 @@ if uploaded_file:
                                             columns="Suchagent", 
                                             values="Count").fillna(0))
                 
-                # Pie Chart 
+                # Pie Chart
                 agent_counts_total = df_melted[df_melted['Suchagent'].isin(selected_agents)]['Suchagent'].value_counts()
                 st.plotly_chart(px.pie(
                     names=agent_counts_total.index, 
@@ -261,13 +263,14 @@ if uploaded_file:
                     # Line Chart
                     st.plotly_chart(px.line(media_data, x="Veröffentlichungsdatum", y="Count",
                                         color="Mediengattung", color_discrete_map=media_colors))
-
+                    time.sleep(3)
                     # Time-based Table
                     st.dataframe(media_data.pivot(index="Veröffentlichungsdatum",
                                                 columns="Mediengattung",
                                                 values="Count").fillna(0))
                     
-                    # Pie Chart 
+                    # Pie Chart
+                    
                     media_dist = df_filtered['Mediengattung'].value_counts().reset_index()
                     st.plotly_chart(px.pie(
                         names=media_dist["Mediengattung"], 
@@ -310,7 +313,7 @@ if uploaded_file:
                                                 columns="Bewertung",
                                                 values="Count").fillna(0))
                     
-                    # Pie Chart 
+                    # Pie Chart (EXACTLY AS IN ORIGINAL)
                     st.plotly_chart(px.pie(
                         df_ratings,
                         names="Bewertung",
@@ -323,14 +326,16 @@ if uploaded_file:
                     rating_totals = df_ratings['Bewertung'].value_counts().reset_index()
                     rating_totals.columns = ["Bewertung", "Gesamtanzahl"]
                     st.dataframe(rating_totals)
-        # TagsZeitreihe
+        # 📌 TagsZeitreihe
     # ---------------------- #
-    if tab == "Tagsanalyse":
-       st.subheader("📊 Tagnalyse")  # Changed title
-       time.sleep(1.5)
+    if tab == "Auswertungen nach Tags":
+       st.subheader("📊 Auswertungen nach Tags")  # Changed title
+
        # Identify tag columns (both standard and smart tags)
        tag_columns = [col for col in df.columns if col.startswith(("Tag"))]
-        
+       while df is None:
+                        st.warning("⏳ Preparing data... Please wait.")
+                        time.sleep(0.5)  # Small delay to prevent unnecessary CPU usage
        if tag_columns:
             # Apply timeframe filter
             df = filter_by_timeframe(df, "Veröffentlichungsdatum")
@@ -502,11 +507,11 @@ if uploaded_file:
                     st.dataframe(df_ratings['Bewertung'].value_counts().reset_index().rename(
                         columns={"index": "Bewertung", "Bewertung": "Treffer"}))
         # ---------------------- #
-        #  Top-Quellen
+        # 📌 Top-Quellen
         # ---------------------- #
-    elif tab == "Top-Quellenanalyse":
+    elif tab == "Auswertungen nach Quellen":
             
-        st.subheader("📊 Top Quelle")
+        st.subheader("📊 Auswertungen nach Quellen")
 
         # Ensure column names have no extra spaces
         df.columns = df.columns.str.strip()
@@ -535,10 +540,10 @@ if uploaded_file:
             else:
                 st.warning("⚠ No Suchagent values found in the uploaded file.")
 
-            # Filter Out 'Ohne Bewertung' and Empty Values**
+            # 🚀 **Filter Out 'Ohne Bewertung' and Empty Values**
             df = df[df["Quelle"].notna() & (df["Quelle"] != "")]
 
-            # If data exists, process it**
+            # 🏆 **If data exists, process it**
             if not df.empty:
                 # Aggregate Data by Quelle (Source)
                 quelle_counts = df.groupby("Quelle").size().reset_index(name="Total Treffer")
@@ -572,7 +577,7 @@ if uploaded_file:
                 # Reset index and remove it
 
                
-                # 📋 **Display Data Table**
+                # Display Data Table
                 st.dataframe(top_10_quelle)
                 
 
@@ -619,5 +624,3 @@ if uploaded_file:
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
 
-
-  
