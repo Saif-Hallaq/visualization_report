@@ -71,8 +71,7 @@ def filter_by_timeframe(df, date_column):
             st.warning("⚠ Not enough data variation to select a timeframe.")
     
     return df
-
-
+st.write(st.__version__)
 # 📌 Ensure the file is loaded before proceeding
 if uploaded_file:
     df = load_data(uploaded_file)
