@@ -157,9 +157,19 @@ if uploaded_file:
 
     if tab == "Auswertungen nach Suchagenten":
        st.subheader("📊 Auswertungen nach Suchagenten")
-       while df is None:
-                        st.warning("⏳ Preparing data... Please wait.")
-                        time.sleep(0.5)  # Small delay to prevent unnecessary CPU usage
+       if df is None:
+        st.warning("⚠️ No data loaded. Please upload an Excel file.")
+        st.stop()
+
+        # 🔹 Ensure df is fully available before rendering tables
+        if "df_ready" not in st.session_state:
+            st.session_state.df_ready = False
+
+        if not st.session_state.df_ready:
+            time.sleep(1)  # Allow Streamlit to catch up
+            st.session_state.df_ready = True
+            st.experimental_rerun()  # 🔄 Force page refresh to ensure stable rendering
+
        if search_agent_columns:
             # Apply filters
             df = filter_by_timeframe(df, "Veröffentlichungsdatum")
@@ -263,7 +273,6 @@ if uploaded_file:
                     # Line Chart
                     st.plotly_chart(px.line(media_data, x="Veröffentlichungsdatum", y="Count",
                                         color="Mediengattung", color_discrete_map=media_colors))
-                    time.sleep(3)
                     # Time-based Table
                     st.dataframe(media_data.pivot(index="Veröffentlichungsdatum",
                                                 columns="Mediengattung",
@@ -330,12 +339,24 @@ if uploaded_file:
     # ---------------------- #
     if tab == "Auswertungen nach Tags":
        st.subheader("📊 Auswertungen nach Tags")  # Changed title
+       if df is None:
+        st.warning("⚠️ No data loaded. Please upload an Excel file.")
+        st.stop()
+
+        # 🔹 Ensure df is fully available before rendering tables
+        if "df_ready" not in st.session_state:
+            st.session_state.df_ready = False
+
+        if not st.session_state.df_ready:
+            time.sleep(1)  # Allow Streamlit to catch up
+            st.session_state.df_ready = True
+            st.experimental_rerun()  # 🔄 Force page refresh to ensure stable rendering
+
+
 
        # Identify tag columns (both standard and smart tags)
        tag_columns = [col for col in df.columns if col.startswith(("Tag"))]
-       while df is None:
-                        st.warning("⏳ Preparing data... Please wait.")
-                        time.sleep(0.5)  # Small delay to prevent unnecessary CPU usage
+       
        if tag_columns:
             # Apply timeframe filter
             df = filter_by_timeframe(df, "Veröffentlichungsdatum")
