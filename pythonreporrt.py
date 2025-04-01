@@ -155,7 +155,7 @@ if uploaded_file:
 
     if tab == "Suchagentenanalyse":
        st.subheader("📊 Suchagentenanalyse")
-
+       time.sleep(1.5)
        if search_agent_columns:
             # Apply filters
             df = filter_by_timeframe(df, "Veröffentlichungsdatum")
@@ -325,10 +325,10 @@ if uploaded_file:
     # ---------------------- #
     if tab == "Tagsanalyse":
        st.subheader("📊 Tagnalyse")  # Changed title
-
+       time.sleep(1.5)
        # Identify tag columns (both standard and smart tags)
        tag_columns = [col for col in df.columns if col.startswith(("Tag"))]
-    
+        
        if tag_columns:
             # Apply timeframe filter
             df = filter_by_timeframe(df, "Veröffentlichungsdatum")
