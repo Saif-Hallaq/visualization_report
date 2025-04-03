@@ -71,11 +71,11 @@ def filter_by_timeframe(df, date_column):
             st.warning("⚠ Not enough data variation to select a timeframe.")
     
     return df
-# 📌 Ensure the file is loaded before proceeding
+# Ensure the file is loaded before proceeding
 if uploaded_file:
     df = load_data(uploaded_file)
 
-    # ✅ Data processing starts here
+    # Data processing starts here
     search_agent_columns = [col for col in df.columns if col.startswith("Suchagent")]
 
     if not search_agent_columns:
@@ -86,18 +86,18 @@ if uploaded_file:
                             var_name="Suchagent Column", value_name="Suchagent")
         agent_counts_over_time = df_melted.groupby(['Veröffentlichungsdatum', 'Suchagent']).size().reset_index(name='Count')
 
-        # 📌 Convert date and aggregate by month
+        # Convert date and aggregate by month
         df['Veröffentlichungsdatum'] = pd.to_datetime(df['Veröffentlichungsdatum'], errors='coerce')
         agent_counts_over_time = agent_counts_over_time.groupby(
             [pd.Grouper(key="Veröffentlichungsdatum", freq="M"), 'Suchagent']
         )['Count'].sum().reset_index()
 
-        # 📌 Display success message
-        st.sidebar.success("File uploaded successfully! ✅")
+        # Display success message
+        st.sidebar.success("Datei erfolgreich hochgeladen! ✅")
      
 
     # ---------------------- #
-    # 📌 Tab: Data Overview
+    # Tab: Data Overview
     # ---------------------- # 
     if tab == "Übersicht":
         
@@ -126,7 +126,7 @@ if uploaded_file:
             st.write(formatted_agents if formatted_agents else "No search agents found.")
         
         # ---------------------- #
-        # 📌 Tags Overview: Search for Tags and Remove Duplicates
+        # Tags Overview
         # ---------------------- #
         # Collect all columns that start with 'Tag' or 'Smart-Tag'
         tag_columns_existing = [col for col in df.columns if col.startswith("Tag")]
@@ -149,7 +149,7 @@ if uploaded_file:
             st.warning("⚠ No Tag or Smart-Tag columns found in the uploaded file.")
 
     # ---------------------- #
-    # 📌 SuchagentenZeitreihe Tab
+    # SuchagentenZeitreihe Tab
     # ---------------------- #
 
     if tab == "Auswertungen nach Suchagenten":
@@ -525,7 +525,7 @@ if uploaded_file:
                     st.dataframe(df_ratings['Bewertung'].value_counts().reset_index().rename(
                         columns={"index": "Bewertung", "Bewertung": "Treffer"}))
         # ---------------------- #
-        # 📌 Top-Quellen
+        # Top-Quellen
         # ---------------------- #
     elif tab == "Auswertungen nach Quellen":
             
@@ -604,7 +604,7 @@ if uploaded_file:
 
 
         # ---------------------- #
-        # 📌 Datenblatt
+        # Datenblatt
         # ---------------------- #
         
     if tab == "Datenblatt":
@@ -641,4 +641,3 @@ if uploaded_file:
             file_name="transformed_data.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-
