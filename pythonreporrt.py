@@ -17,6 +17,7 @@ tab = st.sidebar.radio(
         "Übersicht",
         "Auswertungen nach Suchagenten",
         "Auswertungen nach Tags",
+        "Auswertungen nach Smart-Tags",
         "Auswertungen nach Quellen",
         "Datenblatt"
     ]
@@ -465,6 +466,199 @@ if uploaded_file:
 
                 # 5. Summary Table
                 st.dataframe(pie_data.rename(columns={"Tag": "Tag", "Count": "Treffer"}))
+
+            # --------------------------
+            # MEDIA TYPE ANALYSIS 
+            # --------------------------
+            if "Mediengattung" in df_filtered.columns:
+                st.subheader("Mediengattungen")
+                media_counts = df_filtered.groupby([
+                    pd.Grouper(key='Veröffentlichungsdatum', freq=freq),
+                    'Mediengattung'
+                ]).size().reset_index(name='Count')
+
+                if not media_counts.empty:
+                    media_colors = {m: px.colors.qualitative.Plotly[i%20] for i,m in enumerate(media_counts['Mediengattung'].unique())}
+                    
+                    st.plotly_chart(px.bar(media_counts, x="Veröffentlichungsdatum", y="Count",
+                                        color="Mediengattung", color_discrete_map=media_colors, barmode="group"))
+                    st.plotly_chart(px.line(media_counts, x="Veröffentlichungsdatum", y="Count",
+                                        color="Mediengattung", color_discrete_map=media_colors))
+                    
+                    st.dataframe(media_counts.pivot(index="Veröffentlichungsdatum",
+                                                columns="Mediengattung",
+                                                values="Count").fillna(0))
+                    
+                    media_dist = df_filtered['Mediengattung'].value_counts().reset_index()
+                    st.plotly_chart(px.pie(media_dist, names='Mediengattung', values='count',
+                                        title="Mediengattungen-Verteilung"))
+                    st.dataframe(media_dist.rename(columns={"Mediengattung": "Media Type", "count": "Treffer"}))
+
+            # --------------------------
+            # RATING ANALYSIS 
+            # --------------------------
+            if "Bewertung" in df_filtered.columns:
+                st.subheader("Bewertungen")
+                df_ratings = df_filtered[
+                    df_filtered["Bewertung"].notna() & 
+                    (df_filtered["Bewertung"] != "") & 
+                    (df_filtered["Bewertung"] != "Ohne Bewertung")
+                ]
+                
+                if not df_ratings.empty:
+                    rating_data = df_ratings.groupby([
+                        pd.Grouper(key='Veröffentlichungsdatum', freq=freq),
+                        'Bewertung'
+                    ]).size().reset_index(name='Count')
+
+                    rating_colors = {"Positiv": "green", "Negativ": "red", "Neutral": "blue"}
+                    st.plotly_chart(px.bar(rating_data, x="Veröffentlichungsdatum", y="Count",
+                                        color="Bewertung", color_discrete_map=rating_colors,barmode="group"))
+                    st.plotly_chart(px.line(rating_data, x="Veröffentlichungsdatum", y="Count",
+                                        color="Bewertung", color_discrete_map=rating_colors))
+                    
+                    st.dataframe(rating_data.pivot(index="Veröffentlichungsdatum",
+                                                columns="Bewertung",
+                                                values="Count").fillna(0))
+                    
+                    st.plotly_chart(px.pie(df_ratings, names="Bewertung", title="Bewertungen-Verteilung",
+                                        color="Bewertung", color_discrete_map=rating_colors))
+                    st.dataframe(df_ratings['Bewertung'].value_counts().reset_index().rename(
+                        columns={"index": "Bewertung", "Bewertung": "Treffer"}))
+
+        # 📌 SmartTagsZeitreihe
+    # ---------------------- #
+    if tab == "Auswertungen nach Smart-Tags":
+       st.subheader("📊 Auswertungen nach Smart-Tags")  
+       if df is None:
+        st.warning("⚠️ No data loaded. Please upload an Excel file.")
+        st.stop()
+
+        # 🔹 Ensure df is fully available before rendering tables
+        if "df_ready" not in st.session_state:
+            st.session_state.df_ready = False
+
+        if not st.session_state.df_ready:
+            time.sleep(1)  # Allow Streamlit to catch up
+            st.session_state.df_ready = True
+            st.experimental_rerun()  # 🔄 Force page refresh to ensure stable rendering
+
+
+
+       # Identify tag columns (both standard and smart tags)
+       tag_columns = [col for col in df.columns if col.startswith(("Smart-Tag"))]
+       
+       if tag_columns:
+            # Apply timeframe filter
+            df = filter_by_timeframe(df, "Veröffentlichungsdatum")
+            
+            # Get all unique tags from the data
+            all_tags = sorted(set(str(tag) for col in tag_columns 
+                            for tag in df[col].dropna().unique()))
+            
+            # Tag selection (empty by default)
+            selected_tags = st.multiselect(
+                "Smart-Tags auswählen",  # Changed label
+                all_tags
+            )
+            
+            # If no tags selected, show nothing
+            if not selected_tags:
+                selected_tags = all_tags
+            
+            # Filter the DataFrame to only include rows with selected tags
+            mask = df[tag_columns].apply(
+                lambda row: any(str(tag) in selected_tags for tag in row if pd.notna(tag)),
+                axis=1
+            )
+            df_filtered = df[mask]
+
+            # Time granularity selection
+            time_granularity = st.selectbox(
+                "Zeitintervall auswählen",
+                ["Täglich", "Monatlich", "Vierteljährlich", "Jährlich"]
+            )
+            
+            # Apply time grouping
+            freq = {
+                "Täglich": "D",
+                "Monatlich": "ME",
+                "Vierteljährlich": "Q",
+                "Jährlich": "Y"
+            }[time_granularity]
+
+            # --------------------------
+            # TAG VISUALIZATIONS 
+            # --------------------------
+            
+            # Melt tag data
+            df_melted = df_filtered.melt(
+                id_vars=['Veröffentlichungsdatum'], 
+                value_vars=tag_columns,
+                var_name="Tag Column", 
+                value_name="Tag"
+            ).dropna(subset=['Tag'])
+            
+            # Filter to selected tags
+            df_melted = df_melted[df_melted['Tag'].isin(selected_tags)]
+            df_melted['Veröffentlichungsdatum'] = pd.to_datetime(df_melted['Veröffentlichungsdatum'])
+                
+            tag_counts = df_melted.groupby([
+                pd.Grouper(key='Veröffentlichungsdatum', freq=freq),
+                'Tag'
+            ]).size().reset_index(name='Count')
+
+            if not tag_counts.empty:
+                # Color mapping for tags
+                color_palette = px.colors.qualitative.Prism
+                color_map = {tag: color_palette[i % len(color_palette)] 
+                            for i, tag in enumerate(selected_tags)}
+
+                # 1. Bar Chart
+                bar_chart = px.bar(
+                    tag_counts, 
+                    x="Veröffentlichungsdatum", 
+                    y="Count", 
+                    color="Tag",
+                    title=f"Smart Tag Trend im Zeitverlauf ({time_granularity})",  # Changed title
+                    labels={"Veröffentlichungsdatum": "Date", "Count": "Treffer", "Tag": "SmartTag"},  # Changed labels
+                    barmode="group",
+                    text_auto=True,
+                    color_discrete_map=color_map
+                )
+                st.plotly_chart(bar_chart)
+
+                # 2. Line Chart
+                line_chart = px.line(
+                    tag_counts, 
+                    x="Veröffentlichungsdatum", 
+                    y="Count", 
+                    labels={"Veröffentlichungsdatum": "Date", "Count": "Treffer", "Tag": "SmartTag"},
+                    color="Tag",
+                    color_discrete_map=color_map
+                )
+                st.plotly_chart(line_chart)
+            
+                # 3. Pivot Table
+                pivot_table = tag_counts.pivot(
+                    index="Veröffentlichungsdatum",
+                    columns="Tag",
+                    values="Count"
+                ).fillna(0)
+                st.dataframe(pivot_table)
+
+                # 4. Pie Chart
+                pie_data = tag_counts.groupby('Tag')['Count'].sum().reset_index()
+                st.plotly_chart(px.pie(
+                    pie_data,
+                    names='Tag',
+                    values='Count',
+                    title="SmartTag-Verteilung",  
+                    color_discrete_map=color_map
+                ))
+
+                # 5. Summary Table
+                st.dataframe(pie_data.rename(columns={"Tag": "SmartTag", "Count": "Treffer"}))
 
             # --------------------------
             # MEDIA TYPE ANALYSIS 
