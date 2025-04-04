@@ -397,7 +397,6 @@ if uploaded_file:
             # --------------------------
             # TAG VISUALIZATIONS 
             # --------------------------
-            st.subheader("Tag-Trends")  # Changed header
             
             # Melt tag data
             df_melted = df_filtered.melt(
