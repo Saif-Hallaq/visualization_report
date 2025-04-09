@@ -808,8 +808,15 @@ if uploaded_file:
                 )
                 final_condition &= tag_condition  # Combine with previous conditions
 
-            # Apply the combined conditions to filter the DataFrame
+            # Ensure the boolean series aligns with the DataFrame index
+            final_condition = final_condition.reindex(df.index, fill_value=False)
+            
+            # Apply the filter
             df = df[final_condition]
+            
+            # Handle case if the DataFrame becomes empty after filtering
+            if df.empty:
+                print("Filtered DataFrame is empty!")
 
             # Handle empty DataFrame after filtering
             if df.empty:
