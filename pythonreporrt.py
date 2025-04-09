@@ -838,7 +838,7 @@ if uploaded_file:
                     top_10_quelle,
                     x="Total Treffer",
                     y="Quelle",
-                    title="Top 10 Quellen by Number of Treffer",
+                    title="Top 10 Quellen nach Anzahl der Treffer",
                     color="Quelle",
                     text_auto=True
                 )
