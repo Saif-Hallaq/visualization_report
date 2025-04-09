@@ -294,8 +294,7 @@ if uploaded_file:
                 st.subheader("Bewertungen")
                 df_ratings = df_filtered[
                     df_filtered["Bewertung"].notna() & 
-                    (df_filtered["Bewertung"] != "") & 
-                    (df_filtered["Bewertung"] != "Ohne Bewertung")
+                    (df_filtered["Bewertung"] != "")
                 ]
                 
                 if not df_ratings.empty:
@@ -500,8 +499,7 @@ if uploaded_file:
                 st.subheader("Bewertungen")
                 df_ratings = df_filtered[
                     df_filtered["Bewertung"].notna() & 
-                    (df_filtered["Bewertung"] != "") & 
-                    (df_filtered["Bewertung"] != "Ohne Bewertung")
+                    (df_filtered["Bewertung"] != "") 
                 ]
                 
                 if not df_ratings.empty:
@@ -529,24 +527,10 @@ if uploaded_file:
     # ---------------------- #
     if tab == "Auswertungen nach Smart-Tags":
        st.subheader("📊 Auswertungen nach Smart-Tags")  
-       if df is None:
-        st.warning("⚠️ No data loaded. Please upload an Excel file.")
-        st.stop()
-
-        # 🔹 Ensure df is fully available before rendering tables
-        if "df_ready" not in st.session_state:
-            st.session_state.df_ready = False
-
-        if not st.session_state.df_ready:
-            time.sleep(1)  # Allow Streamlit to catch up
-            st.session_state.df_ready = True
-            st.experimental_rerun()  # 🔄 Force page refresh to ensure stable rendering
-
-
 
        # Identify tag columns (both standard and smart tags)
-       tag_columns = [col for col in df.columns if col.startswith(("Smart-Tag"))]
-       
+       tag_columns = [col for col in df.columns if col.startswith("Smart-Tag")]      
+      
        if tag_columns:
             # Apply timeframe filter
             df = filter_by_timeframe(df, "Veröffentlichungsdatum")
@@ -693,8 +677,7 @@ if uploaded_file:
                 st.subheader("Bewertungen")
                 df_ratings = df_filtered[
                     df_filtered["Bewertung"].notna() & 
-                    (df_filtered["Bewertung"] != "") & 
-                    (df_filtered["Bewertung"] != "Ohne Bewertung")
+                    (df_filtered["Bewertung"] != "") 
                 ]
                 
                 if not df_ratings.empty:
@@ -717,84 +700,7 @@ if uploaded_file:
                                         color="Bewertung", color_discrete_map=rating_colors))
                     st.dataframe(df_ratings['Bewertung'].value_counts().reset_index().rename(
                         columns={"index": "Bewertung", "Bewertung": "Treffer"}))
-        # ---------------------- #
-        # Top-Quellen
-        # ---------------------- #
-    elif tab == "Auswertungen nach Quellen":
-            
-        st.subheader("📊 Auswertungen nach Quellen")
-
-        # Ensure column names have no extra spaces
-        df.columns = df.columns.str.strip()
-
-        # Ensure necessary columns exist
-        if "Quelle" in df.columns and "Veröffentlichungsdatum" in df.columns:
-            # Convert date column to datetime format
-            df["Veröffentlichungsdatum"] = pd.to_datetime(df["Veröffentlichungsdatum"], errors="coerce")
-
-            # Apply Timeframe Filter**
-            df = filter_by_timeframe(df, "Veröffentlichungsdatum")
-
-            # Search Agent Filtering**
-            search_agent_columns = [col for col in df.columns if "Suchagent" in col]
-            search_agents = set()
-            for col in search_agent_columns:
-                search_agents.update(df[col].dropna().unique())
-
-            if search_agents:
-                selected_agents = st.multiselect("Select Search Agents", sorted(search_agents))
-                if selected_agents:
-                    agent_condition = df[search_agent_columns].apply(
-                        lambda row: any(agent in selected_agents for agent in row.values), axis=1
-                    )
-                    df = df[agent_condition]  # Filter by selected agents
-            else:
-                st.warning("⚠ No Suchagent values found in the uploaded file.")
-
-            # 🚀 **Filter Out 'Ohne Bewertung' and Empty Values**
-            df = df[df["Quelle"].notna() & (df["Quelle"] != "")]
-
-            # 🏆 **If data exists, process it**
-            if not df.empty:
-                # Aggregate Data by Quelle (Source)
-                quelle_counts = df.groupby("Quelle").size().reset_index(name="Total Treffer")
-
-                # Get the top 10 Quelle sources
-                top_10_quelle = quelle_counts.nlargest(10, "Total Treffer")
-
-               
-                # 📊 **Bar Chart (Top 10 Quelle Sources)**
-                fig = px.bar(
-                    top_10_quelle,
-                    x="Total Treffer",
-                    y="Quelle",
-                    title="Top 10 Quellen by Number of Treffer",
-                    
-                    color="Quelle",
-                    
-                    
-                    text_auto=True
-                )
-                
-                # Improve readability
-                fig.update_layout(
-                    xaxis_title="",
-                    yaxis_title="",
-                    xaxis=dict(tickangle=-45),  # Rotate X-axis labels for better readability
-                    showlegend=False
-                )
-
-                st.plotly_chart(fig)
-                # Reset index and remove it
-
-               
-                # Display Data Table
-                st.dataframe(top_10_quelle)
-                
-
-            else:
-                st.warning("⚠ No data available for the selected filters.")
-
+      
 
         # ---------------------- #
         # Datenblatt
@@ -834,3 +740,114 @@ if uploaded_file:
             file_name="transformed_data.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
+        # ---------------------- #
+        # Top-Quellen
+        # ---------------------- #
+    elif tab == "Auswertungen nach Quellen":
+            
+       
+        st.subheader("📊 Auswertungen nach Quellen")
+        
+        # Ensure column names have no extra spaces
+        df.columns = df.columns.str.strip()
+
+        # Ensure necessary columns exist
+        if "Quelle" in df.columns and "Veröffentlichungsdatum" in df.columns:
+            # Convert date column to datetime format
+            df["Veröffentlichungsdatum"] = pd.to_datetime(df["Veröffentlichungsdatum"], errors="coerce")
+
+            # Apply Timeframe Filter (assuming filter_by_timeframe is a function defined elsewhere)
+            df = filter_by_timeframe(df, "Veröffentlichungsdatum")
+
+            # Initialize conditions as True (this allows for no filtering if no options are selected)
+            final_condition = pd.Series([True] * len(df))
+
+            # Initialize 'search_agents' by extracting the unique values from the 'Suchagent' columns
+            search_agent_columns = [col for col in df.columns if "Suchagent" in col]
+            search_agents = set()
+            for col in search_agent_columns:
+                search_agents.update(df[col].dropna().unique())
+
+            # ------------------- Search Agent Filter -------------------
+            selected_agents = st.multiselect("Select Search Agents", sorted(search_agents))
+
+            if selected_agents:
+                agent_condition = df[search_agent_columns].apply(
+                    lambda row: any(agent in selected_agents for agent in row.values), axis=1
+                )
+                final_condition &= agent_condition  # Combine with previous conditions
+
+            # Initialize 'smarttags' by extracting the unique values from the 'Smart-Tag' columns
+            smarttag_columns = [col for col in df.columns if col.startswith("Smart-Tag")]
+            smarttags = set()
+            for col in smarttag_columns:
+                smarttags.update(df[col].dropna().unique())
+
+            # ------------------- Smart Tag Filter -------------------
+            selected_smarttags = st.multiselect("Select Smart Tags", sorted(smarttags))
+
+            if selected_smarttags:
+                smarttag_condition = df[smarttag_columns].apply(
+                    lambda row: any(tag in selected_smarttags for tag in row.values), axis=1
+                )
+                final_condition &= smarttag_condition  # Combine with previous conditions
+
+            # ------------------- Tag Filter -------------------
+            tag_columns = [col for col in df.columns if col.startswith("Tag")]
+            tags = set()
+            for col in tag_columns:
+                tags.update(df[col].dropna().unique())
+
+            # ------------------- Tag Filter -------------------
+            selected_tags = st.multiselect("Select Tags", sorted(tags))
+
+            if selected_tags:
+                tag_condition = df[tag_columns].apply(
+                    lambda row: any(tag in selected_tags for tag in row.values), axis=1
+                )
+                final_condition &= tag_condition  # Combine with previous conditions
+
+            # Apply the combined conditions to filter the DataFrame
+            df = df[final_condition]
+
+            # Handle empty DataFrame after filtering
+            if df.empty:
+                st.warning("⚠ No data available for the selected filters.")
+
+            # ------------------- Filter Out 'Ohne Bewertung' and Empty Values -------------------
+            df = df[df["Quelle"].notna() & (df["Quelle"] != "")]
+
+            # 🏆 **If data exists, process it**
+            if not df.empty:
+                # Aggregate Data by Quelle (Source)
+                quelle_counts = df.groupby("Quelle").size().reset_index(name="Total Treffer")
+
+                # Get the top 10 Quelle sources
+                top_10_quelle = quelle_counts.nlargest(10, "Total Treffer")
+
+                # 📊 **Bar Chart (Top 10 Quelle Sources)**
+                fig = px.bar(
+                    top_10_quelle,
+                    x="Total Treffer",
+                    y="Quelle",
+                    title="Top 10 Quellen by Number of Treffer",
+                    color="Quelle",
+                    text_auto=True
+                )
+
+                # Improve readability
+                fig.update_layout(
+                    xaxis_title="",
+                    yaxis_title="",
+                    xaxis=dict(tickangle=-45),  # Rotate X-axis labels for better readability
+                    showlegend=False
+                )
+
+                st.plotly_chart(fig)
+
+                # Display Data Table
+                st.dataframe(top_10_quelle.reset_index(drop=True))
+
+            else:
+                st.warning("⚠ No data available for the selected filters.")
