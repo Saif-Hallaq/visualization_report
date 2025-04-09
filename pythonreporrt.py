@@ -770,7 +770,7 @@ if uploaded_file:
                 search_agents.update(df[col].dropna().unique())
 
             # ------------------- Search Agent Filter -------------------
-            selected_agents = st.multiselect("SearchAgent auswählen", sorted(search_agents))
+            selected_agents = st.multiselect("Suchagenten auswählen", sorted(search_agents))
 
             if selected_agents:
                 agent_condition = df[search_agent_columns].apply(
@@ -785,7 +785,7 @@ if uploaded_file:
                 smarttags.update(df[col].dropna().unique())
 
             # ------------------- Smart Tag Filter -------------------
-            selected_smarttags = st.multiselect("SmartTags auswählen", sorted(smarttags))
+            selected_smarttags = st.multiselect("Smart-Tag auswählen", sorted(smarttags))
 
             if selected_smarttags:
                 smarttag_condition = df[smarttag_columns].apply(
