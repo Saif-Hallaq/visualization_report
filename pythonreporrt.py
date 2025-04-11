@@ -243,6 +243,7 @@ if uploaded_file:
                     color=agent_counts_total.index,
                     title="Suchagent-Verteilung",
                     color_discrete_map=colors
+                   
                 ))
                 
                 # Summary Table 
@@ -325,7 +326,8 @@ if uploaded_file:
                         names="Bewertung",
                         title="Bewertungsverteilung",
                         color="Bewertung",
-                        color_discrete_map=rating_colors
+                        color_discrete_map=rating_colors,
+                         showlegend=True
                     ))
                     
                     # Summary Table
