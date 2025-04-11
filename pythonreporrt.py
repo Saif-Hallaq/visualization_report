@@ -323,7 +323,7 @@ if uploaded_file:
                     st.plotly_chart(px.pie(
                         df_ratings,
                         names="Bewertung",
-                        title="Bewertungen-verteilung",
+                        title="Bewertungsverteilung",
                         color="Bewertung",
                         color_discrete_map=rating_colors
                     ))
@@ -518,7 +518,7 @@ if uploaded_file:
                                                 columns="Bewertung",
                                                 values="Count").fillna(0))
                     
-                    st.plotly_chart(px.pie(df_ratings, names="Bewertung", title="Bewertungen-Verteilung",
+                    st.plotly_chart(px.pie(df_ratings, names="Bewertung", title="Bewertungsverteilung",
                                         color="Bewertung", color_discrete_map=rating_colors))
                     st.dataframe(df_ratings['Bewertung'].value_counts().reset_index().rename(
                         columns={"index": "Bewertung", "Bewertung": "Treffer"}))
@@ -696,7 +696,7 @@ if uploaded_file:
                                                 columns="Bewertung",
                                                 values="Count").fillna(0))
                     
-                    st.plotly_chart(px.pie(df_ratings, names="Bewertung", title="Bewertungen-Verteilung",
+                    st.plotly_chart(px.pie(df_ratings, names="Bewertung", title="Bewertungsverteilung",
                                         color="Bewertung", color_discrete_map=rating_colors))
                     st.dataframe(df_ratings['Bewertung'].value_counts().reset_index().rename(
                         columns={"index": "Bewertung", "Bewertung": "Treffer"}))
