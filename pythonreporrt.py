@@ -320,14 +320,14 @@ if uploaded_file:
                                                 columns="Bewertung",
                                                 values="Count").fillna(0))
                     
-                    # Pie Chart (EXACTLY AS IN ORIGINAL)
+                    # Pie Chart
                     st.plotly_chart(px.pie(
                         df_ratings,
                         names="Bewertung",
                         title="Bewertungsverteilung",
                         color="Bewertung",
-                        color_discrete_map=rating_colors,
-                         showlegend=True
+                        color_discrete_map=rating_colors
+                         
                     ))
                     
                     # Summary Table
