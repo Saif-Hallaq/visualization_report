@@ -25,18 +25,8 @@ tab = st.sidebar.radio(
 
 with st.sidebar:
     uploaded_file = st.file_uploader("Datei hierhin ziehen", type=["xls", "xlsx"])
-st.markdown(
-    """
-    <style>
-        body {
-            font-size: 14px;  # Adjust the font size
-            
-        }
-      
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+
+
 
 @st.cache_data
 def load_data(file):
@@ -49,6 +39,30 @@ if "df" not in st.session_state or uploaded_file:
 
 df = st.session_state.df
 
+def create_pie_chart(data, names_col, values_col, title, color_map=None):
+    fig = px.pie(
+        data,
+        names=names_col,
+        values=values_col,
+        title=title,
+        color_discrete_map=color_map
+    )
+
+    fig.update_layout(
+        margin=dict(l=50, r=50, t=50, b=100),
+        showlegend=True,
+        legend_title=names_col,
+        legend=dict(
+            font=dict(
+                size=12,
+                color="black"
+            ),
+            bgcolor="rgba(255,255,255,0)",
+            bordercolor="rgba(0,0,0,0)",
+        )
+    )
+
+    return fig
 
 # Function to filter data by timeframe
 def filter_by_timeframe(df, date_column):
@@ -129,7 +143,7 @@ if uploaded_file:
         # ---------------------- #
         # Tags Overview
         # ---------------------- #
-        # Collect all columns that start with 'Tag' or 'Smart-Tag'
+        # Collect all columns that start with 'Smart-Tag'
         tag_columns_existing = [col for col in df.columns if col.startswith("Tag")]
 
         if tag_columns_existing:
@@ -236,20 +250,31 @@ if uploaded_file:
                                             values="Count").fillna(0))
                 
                 # Pie Chart
-                agent_counts_total = df_melted[df_melted['Suchagent'].isin(selected_agents)]['Suchagent'].value_counts()
-                st.plotly_chart(px.pie(
-                    names=agent_counts_total.index, 
-                    values=agent_counts_total.values,
-                    color=agent_counts_total.index,
-                    title="Suchagent-Verteilung",
-                    color_discrete_map=colors
-                   
-                ))
-                
-                # Summary Table 
-                df_agents = agent_counts_total.reset_index()
-                df_agents.columns = ["Suchagent", "Treffer"]
-                st.dataframe(df_agents)
+                # Filter and prepare agent count data
+                agent_counts_total = (
+                    df_melted[df_melted['Suchagent'].isin(selected_agents)]
+                    .groupby('Suchagent')
+                    .size()
+                    .reset_index(name='Treffer')
+                )
+
+                # Clean any potential NaN or invalid data
+                agent_counts_total = agent_counts_total.dropna()
+
+                # Create the pie chart using the reusable function
+                suchagent_fig = create_pie_chart(
+                    agent_counts_total,
+                    names_col='Suchagent',
+                    values_col='Treffer',
+                    title='Suchagent-Verteilung',
+                    color_map=colors  # your predefined color dict
+                )
+
+                # Show pie chart in Streamlit
+                st.plotly_chart(suchagent_fig, use_container_width=True)
+
+                # Show the summary table
+                st.dataframe(agent_counts_total.set_index("Suchagent"))
 
             # 2. Media Type Analysis
             if "Mediengattung" in df_filtered.columns:
@@ -262,6 +287,12 @@ if uploaded_file:
                 if not media_data.empty:
                     # Visualizations
                     media_types = media_data['Mediengattung'].unique()
+
+                    # Replace 'Radio Tv' with 'Radio and TV'
+                    media_types = [media_type.replace('Radio Tv', 'Radio and TV') for media_type in media_types]
+
+                    # Now, media_types should display 'Radio and TV'
+                   
                     media_colors = {m: px.colors.qualitative.Plotly[i%len(px.colors.qualitative.Plotly)]
                                 for i,m in enumerate(media_types)}
                     
@@ -280,15 +311,23 @@ if uploaded_file:
                     # Pie Chart
                     
                     media_dist = df_filtered['Mediengattung'].value_counts().reset_index()
-                    st.plotly_chart(px.pie(
-                        names=media_dist["Mediengattung"], 
-                        values=media_dist["count"],
-                        title="Mediengattungen-verteilung",
-                        color_discrete_map=media_colors
-                    ))
+                    media_dist.columns = ['Mediengattung', 'count']  # Rename columns for clarity
+
+                    media_gattung_fig = create_pie_chart(
+                        media_dist,
+                        names_col='Mediengattung',
+                        values_col='count',
+                        title="Mediengattungen-Verteilung",
+                        color_map=media_colors  # your predefined color dict
+                    )
+
+                    # Show the pie chart in Streamlit
+                    st.plotly_chart(media_gattung_fig, use_container_width=True)
                     
                     # Summary Table
-                    st.dataframe(media_dist.rename(columns={"Mediengattung": "Media Type", "count": "Treffer"}))
+                    st.dataframe(
+                        media_dist.rename(columns={"Mediengattung": "Media Type", "count": "Treffer"}).set_index("Media Type")
+                    )
 
             # 3. Rating Analysis
             if "Bewertung" in df_filtered.columns:
@@ -320,20 +359,29 @@ if uploaded_file:
                                                 columns="Bewertung",
                                                 values="Count").fillna(0))
                     
-                    # Pie Chart
-                    st.plotly_chart(px.pie(
-                        df_ratings,
-                        names="Bewertung",
-                        title="Bewertungsverteilung",
-                        color="Bewertung",
-                        color_discrete_map=rating_colors
-                         
-                    ))
+                    # Pie Chart (EXACTLY AS IN ORIGINAL)
+                    rating_counts = df_ratings['Bewertung'].value_counts().reset_index()
+                    rating_counts.columns = ['Bewertung', 'count']  # Rename columns for clarity
+
+                    # Create the pie chart using the reusable function
+                    bewertung_fig = create_pie_chart(
+                        rating_counts,
+                        names_col='Bewertung',
+                        values_col='count',
+                        title="Bewertungen-verteilung",
+                        color_map=rating_colors  # your predefined color dict
+                    )
+
+                    # Show the pie chart in Streamlit
+                    st.plotly_chart(bewertung_fig, use_container_width=True)
                     
                     # Summary Table
                     rating_totals = df_ratings['Bewertung'].value_counts().reset_index()
                     rating_totals.columns = ["Bewertung", "Gesamtanzahl"]
-                    st.dataframe(rating_totals)
+                    st.dataframe(rating_totals.set_index("Bewertung"))
+                    
+      
+      
         # 📌 TagsZeitreihe
     # ---------------------- #
     if tab == "Auswertungen nach Tags":
@@ -453,19 +501,19 @@ if uploaded_file:
                     values="Count"
                 ).fillna(0)
                 st.dataframe(pivot_table)
-
-                # 4. Pie Chart
+                
+                # Create the Pie chart using Plotly Express
                 pie_data = tag_counts.groupby('Tag')['Count'].sum().reset_index()
-                st.plotly_chart(px.pie(
-                    pie_data,
-                    names='Tag',
-                    values='Count',
-                    title="Tag-Verteilung",  
-                    color_discrete_map=color_map
-                ))
+                fig1 = create_pie_chart(pie_data, 'Tag', 'Count', "Tag-Verteilung", color_map)
+                st.plotly_chart(fig1, use_container_width=True)
 
-                # 5. Summary Table
-                st.dataframe(pie_data.rename(columns={"Tag": "Tag", "Count": "Treffer"}))
+            
+
+                st.dataframe(
+                    pie_data.rename(columns={"Tag": "Tag", "Count": "Treffer"}).set_index("Tag")
+                )
+               
+
 
             # --------------------------
             # MEDIA TYPE ANALYSIS 
@@ -489,11 +537,22 @@ if uploaded_file:
                                                 columns="Mediengattung",
                                                 values="Count").fillna(0))
                     
-                    media_dist = df_filtered['Mediengattung'].value_counts().reset_index()
-                    st.plotly_chart(px.pie(media_dist, names='Mediengattung', values='count',
-                                        title="Mediengattungen-Verteilung"))
-                    st.dataframe(media_dist.rename(columns={"Mediengattung": "Media Type", "count": "Treffer"}))
+                media_dist = df_filtered['Mediengattung'].value_counts().reset_index()
+                media_dist.columns = ['Mediengattung', 'count']
+                media_fig = create_pie_chart(
+                    media_dist,
+                    names_col='Mediengattung',
+                    values_col='count',
+                    title='Mediengattungen-Verteilung'
+                )
 
+                st.plotly_chart(media_fig, use_container_width=True)
+
+                    
+                #Table
+                st.dataframe(
+                    media_dist.rename(columns={"Mediengattung": "Media Type", "count": "Treffer"}).set_index("Media Type")
+                )
             # --------------------------
             # RATING ANALYSIS 
             # --------------------------
@@ -520,10 +579,24 @@ if uploaded_file:
                                                 columns="Bewertung",
                                                 values="Count").fillna(0))
                     
-                    st.plotly_chart(px.pie(df_ratings, names="Bewertung", title="Bewertungsverteilung",
-                                        color="Bewertung", color_discrete_map=rating_colors))
-                    st.dataframe(df_ratings['Bewertung'].value_counts().reset_index().rename(
-                        columns={"index": "Bewertung", "Bewertung": "Treffer"}))
+                    # Prepare pie chart data
+                    rating_counts = df_ratings['Bewertung'].value_counts().reset_index()
+                    rating_counts.columns = ['Bewertung', 'Treffer']
+
+                    # Create and show the pie chart
+                    rating_pie_fig = create_pie_chart(
+                        rating_counts,
+                        names_col='Bewertung',
+                        values_col='Treffer',
+                        title='Bewertungen-Verteilung',
+                        color_map=rating_colors
+                    )
+
+                    st.plotly_chart(rating_pie_fig, use_container_width=True)
+
+                    # Show data table
+                    st.dataframe(rating_counts.set_index("Bewertung"))
+
 
         # 📌 SmartTagsZeitreihe
     # ---------------------- #
@@ -634,16 +707,22 @@ if uploaded_file:
 
                 # 4. Pie Chart
                 pie_data = tag_counts.groupby('Tag')['Count'].sum().reset_index()
-                st.plotly_chart(px.pie(
+
+                smarttag_fig = create_pie_chart(
                     pie_data,
-                    names='Tag',
-                    values='Count',
-                    title="SmartTag-Verteilung",  
-                    color_discrete_map=color_map
-                ))
+                    names_col='Tag',
+                    values_col='Count',
+                    title='SmartTag-Verteilung',
+                    color_map=color_map
+                )
+
+                st.plotly_chart(smarttag_fig, use_container_width=True)
+
 
                 # 5. Summary Table
-                st.dataframe(pie_data.rename(columns={"Tag": "SmartTag", "Count": "Treffer"}))
+                st.dataframe(
+                    pie_data.rename(columns={"Tag": "SmartTag", "Count": "Treffer"}).set_index("SmartTag")
+                )
 
             # --------------------------
             # MEDIA TYPE ANALYSIS 
@@ -668,9 +747,22 @@ if uploaded_file:
                                                 values="Count").fillna(0))
                     
                     media_dist = df_filtered['Mediengattung'].value_counts().reset_index()
-                    st.plotly_chart(px.pie(media_dist, names='Mediengattung', values='count',
-                                        title="Mediengattungen-Verteilung"))
-                    st.dataframe(media_dist.rename(columns={"Mediengattung": "Media Type", "count": "Treffer"}))
+                    media_dist.columns = ['Mediengattung', 'count']
+
+                    media_fig = create_pie_chart(
+                        media_dist,
+                        names_col='Mediengattung',
+                        values_col='count',
+                        title='Mediengattungen-Verteilung'
+                    )
+
+                    st.plotly_chart(media_fig, use_container_width=True)
+
+                     # Summary Table
+                    st.dataframe(
+                        media_dist.rename(columns={"Mediengattung": "Media Type", "count": "Treffer"}).set_index("Media Type")
+                    )
+                    
 
             # --------------------------
             # RATING ANALYSIS 
@@ -698,10 +790,27 @@ if uploaded_file:
                                                 columns="Bewertung",
                                                 values="Count").fillna(0))
                     
-                    st.plotly_chart(px.pie(df_ratings, names="Bewertung", title="Bewertungsverteilung",
-                                        color="Bewertung", color_discrete_map=rating_colors))
-                    st.dataframe(df_ratings['Bewertung'].value_counts().reset_index().rename(
-                        columns={"index": "Bewertung", "Bewertung": "Treffer"}))
+                    df_ratings_grouped = df_ratings['Bewertung'].value_counts().reset_index()
+                    df_ratings_grouped.columns = ['Bewertung', 'count']
+
+                    bewertung_fig = create_pie_chart(
+                        df_ratings_grouped,
+                        names_col='Bewertung',
+                        values_col='count',
+                        title='Bewertungen-Verteilung',
+                        color_map=rating_colors
+                    )
+
+                    st.plotly_chart(bewertung_fig, use_container_width=True)
+                  
+                  # Count and prepare the rating data
+                    rating_counts = df_ratings['Bewertung'].value_counts().reset_index()
+                    rating_counts.columns = ['Bewertung', 'Treffer']
+
+                    # Display the dataframe with 'Bewertung' as index, like the others
+                    st.dataframe(rating_counts.set_index("Bewertung"))
+                                        
+                  
       
 
         # ---------------------- #
@@ -856,7 +965,7 @@ if uploaded_file:
                 st.plotly_chart(fig)
 
                 # Display Data Table
-                st.dataframe(top_10_quelle.reset_index(drop=True))
+                st.dataframe(top_10_quelle.reset_index(drop=True).set_index("Quelle"))
 
             else:
                 st.warning("⚠ No data available for the selected filters.")
