@@ -195,10 +195,10 @@ if uploaded_file:
             
             # Agent selection
             selected_agents = st.multiselect(
-                "Suchagenten auswählen",
-                placeholder="Bitte Agenten auswählen",
-                all_agents
-             )
+                "Suchagenten auswählen",         # Positional: label
+                all_agents,                      # Positional: options list
+                placeholder="Bitte Agenten auswählen"  # Keyword: placeholder
+            )
             
             if not selected_agents:
                 selected_agents = all_agents 
