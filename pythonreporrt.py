@@ -125,7 +125,7 @@ def filter_by_timeframe(df, date_column):
             df = df[(df[date_column] >= selected_timeframe[0]) & 
                     (df[date_column] <= selected_timeframe[1])]
         else:
-            st.warning("⚠ Not enough data variation to select a timeframe.")
+            st.warning("⚠ Nicht genügend Datenvariationen für die Auswahl eines Zeitrahmens")
     
     return df
 # Ensure the file is loaded before proceeding
