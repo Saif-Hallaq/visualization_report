@@ -51,7 +51,10 @@ def create_pie_chart(data, names_col, values_col, title, color_map=None):
     fig.update_layout(
         margin=dict(l=50, r=50, t=50, b=100),
         showlegend=True,
-        legend_title=names_col,
+        legend_title=dict(
+        text=names_col,
+        font=dict(size=16)
+    ),
         legend=dict(
             font=dict(
                 size=12,
@@ -237,12 +240,47 @@ if uploaded_file:
                         for i,a in enumerate(selected_agents)}
                 
                 # Bar Chart
-                st.plotly_chart(px.bar(agent_data, x="Veröffentlichungsdatum", y="Count",
-                                    color="Suchagent", color_discrete_map=colors,barmode="group"))
+                fig = px.bar(
+                    agent_data,
+                    x="Veröffentlichungsdatum",
+                    y="Count",
+                    color="Suchagent",
+                    color_discrete_map=colors,
+                    barmode="group"
+                )
+
+                # Rename the Y-axis label
+                fig.update_layout(
+                    yaxis_title="Treffer",
+                    legend_title=dict(
+                        text="Suchagent",
+                        font=dict(size=16)
+                    )
+                )
+
+                # Show the chart
+                st.plotly_chart(fig)
+
                 
                 # Line Chart
-                st.plotly_chart(px.line(agent_data, x="Veröffentlichungsdatum", y="Count",
-                                    color="Suchagent", color_discrete_map=colors))
+                fig = px.line(
+                    agent_data,
+                    x="Veröffentlichungsdatum",
+                    y="Count",
+                    color="Suchagent",
+                    color_discrete_map=colors
+                )
+
+                fig.update_layout(
+                    yaxis_title="Treffer",
+                    legend_title=dict(
+                    text="Suchagent",
+                    font=dict(size=16)
+                )
+                )
+
+                st.plotly_chart(fig)
+               
 
                 # Time-based Table
                 st.dataframe(agent_data.pivot(index="Veröffentlichungsdatum", 
@@ -291,18 +329,49 @@ if uploaded_file:
                     # Replace 'Radio Tv' with 'Radio and TV'
                     media_types = [media_type.replace('Radio Tv', 'Radio and TV') for media_type in media_types]
 
-                    # Now, media_types should display 'Radio and TV'
                    
                     media_colors = {m: px.colors.qualitative.Plotly[i%len(px.colors.qualitative.Plotly)]
                                 for i,m in enumerate(media_types)}
                     
                     # Bar Chart
-                    st.plotly_chart(px.bar(media_data, x="Veröffentlichungsdatum", y="Count",
-                                        color="Mediengattung", color_discrete_map=media_colors,barmode="group"))
-                    
+                    fig = px.bar(
+                        media_data,
+                        x="Veröffentlichungsdatum",
+                        y="Count",
+                        color="Mediengattung",
+                        color_discrete_map=media_colors,
+                        barmode="group"
+                    )
+
+                    fig.update_layout(
+                        yaxis_title="Treffer",
+                        legend_title=dict(
+                            text="Mediengattung",  # Optional, will auto-use column name
+                            font=dict(size=16)     # Adjust font size as needed
+                        )
+                    )
+
+                    st.plotly_chart(fig)
                     # Line Chart
-                    st.plotly_chart(px.line(media_data, x="Veröffentlichungsdatum", y="Count",
-                                        color="Mediengattung", color_discrete_map=media_colors))
+                    fig = px.line(
+                        media_data,
+                        x="Veröffentlichungsdatum",
+                        y="Count",
+                        color="Mediengattung",
+                        color_discrete_map=media_colors
+                    )
+
+                    fig.update_layout(
+                        yaxis_title="Treffer",
+                        legend_title=dict(
+                            text="Mediengattung",  # Optional, will auto-use column name
+                            font=dict(size=16)     # Adjust font size as needed
+                        )
+                    )
+
+                    st.plotly_chart(fig)
+
+
                     # Time-based Table
                     st.dataframe(media_data.pivot(index="Veröffentlichungsdatum",
                                                 columns="Mediengattung",
@@ -347,12 +416,44 @@ if uploaded_file:
                     rating_colors = {"Positiv": "green", "Negativ": "red", "Neutral": "blue"}
                     
                     # Bar Chart
-                    st.plotly_chart(px.bar(rating_data, x="Veröffentlichungsdatum", y="Count",
-                                        color="Bewertung", color_discrete_map=rating_colors,barmode="group"))
+                    fig = px.bar(
+                        rating_data,
+                        x="Veröffentlichungsdatum",
+                        y="Count",
+                        color="Bewertung",
+                        color_discrete_map=rating_colors,
+                        barmode="group"
+                    )
+
                     
+                    fig.update_layout(
+                        yaxis_title="Treffer",
+                        legend_title=dict(
+                            text="Bewertung",
+                            font=dict(size=16)  # Change size as needed
+                        ))
+
+                    st.plotly_chart(fig)
+
                     # Line Chart
-                    st.plotly_chart(px.line(rating_data, x="Veröffentlichungsdatum", y="Count",
-                                        color="Bewertung", color_discrete_map=rating_colors))
+                    fig = px.line(
+                        rating_data,
+                        x="Veröffentlichungsdatum",
+                        y="Count",
+                        color="Bewertung",
+                        color_discrete_map=rating_colors
+                    )
+
+                    fig.update_layout(
+                        yaxis_title="Treffer",
+                        legend_title=dict(
+                            text="Bewertung",
+                            font=dict(size=16)  # Change size as needed
+                        )
+                    )
+
+                    st.plotly_chart(fig)
+
 
                     # Time-based Table
                     st.dataframe(rating_data.pivot(index="Veröffentlichungsdatum",
@@ -477,10 +578,15 @@ if uploaded_file:
                     y="Count", 
                     color="Tag",
                     title=f"Tag Trend im Zeitverlauf ({time_granularity})",  # Changed title
-                    labels={"Veröffentlichungsdatum": "Date", "Count": "Treffer", "Tag": "Tag"},  # Changed labels
+                    labels={     "Count": "Treffer", "Tag": "Tag"},  # Changed labels
                     barmode="group",
                     text_auto=True,
                     color_discrete_map=color_map
+                )
+                bar_chart.update_layout(
+                    legend_title=dict(
+                        font=dict(size=16)
+                    )
                 )
                 st.plotly_chart(bar_chart)
 
@@ -490,7 +596,15 @@ if uploaded_file:
                     x="Veröffentlichungsdatum", 
                     y="Count", 
                     color="Tag",
+                    labels={ "Count": "Treffer", "Tag": "Tag"},  # Changed labels
+
                     color_discrete_map=color_map
+                )
+
+                line_chart.update_layout(
+                    legend_title=dict(
+                        font=dict(size=16)
+                    )
                 )
                 st.plotly_chart(line_chart)
             
@@ -528,14 +642,46 @@ if uploaded_file:
                 if not media_counts.empty:
                     media_colors = {m: px.colors.qualitative.Plotly[i%20] for i,m in enumerate(media_counts['Mediengattung'].unique())}
                     
-                    st.plotly_chart(px.bar(media_counts, x="Veröffentlichungsdatum", y="Count",
-                                        color="Mediengattung", color_discrete_map=media_colors, barmode="group"))
-                    st.plotly_chart(px.line(media_counts, x="Veröffentlichungsdatum", y="Count",
-                                        color="Mediengattung", color_discrete_map=media_colors))
-                    
-                    st.dataframe(media_counts.pivot(index="Veröffentlichungsdatum",
-                                                columns="Mediengattung",
-                                                values="Count").fillna(0))
+                    # Bar chart
+                bar_fig = px.bar(
+                    media_counts,
+                    x="Veröffentlichungsdatum",
+                    y="Count",
+                    color="Mediengattung",
+                    color_discrete_map=media_colors,
+                    labels={ "Count": "Treffer"},  # Changed labels
+
+                    barmode="group"
+                )
+
+                bar_fig.update_layout(
+                    legend_title=dict(font=dict(size=16)),
+                    legend=dict(font=dict(size=13))  # optional: change legend item size too
+                )
+
+                st.plotly_chart(bar_fig)
+
+                # Line chart
+                line_fig = px.line(
+                    media_counts,
+                    x="Veröffentlichungsdatum",
+                    y="Count",
+                    color="Mediengattung",
+                    labels={ "Count": "Treffer"},  # Changed labels
+
+                    color_discrete_map=media_colors
+                )
+
+                line_fig.update_layout(
+                    legend_title=dict(font=dict(size=16)),
+                    legend=dict(font=dict(size=13))  # optional
+                )
+
+                st.plotly_chart(line_fig)
+
+                st.dataframe(media_counts.pivot(index="Veröffentlichungsdatum",
+                                                                columns="Mediengattung",
+                                                                values="Count").fillna(0))
                     
                 media_dist = df_filtered['Mediengattung'].value_counts().reset_index()
                 media_dist.columns = ['Mediengattung', 'count']
@@ -570,10 +716,43 @@ if uploaded_file:
                     ]).size().reset_index(name='Count')
 
                     rating_colors = {"Positiv": "green", "Negativ": "red", "Neutral": "blue"}
-                    st.plotly_chart(px.bar(rating_data, x="Veröffentlichungsdatum", y="Count",
-                                        color="Bewertung", color_discrete_map=rating_colors,barmode="group"))
-                    st.plotly_chart(px.line(rating_data, x="Veröffentlichungsdatum", y="Count",
-                                        color="Bewertung", color_discrete_map=rating_colors))
+
+                    # Bar chart with updated legend styling
+                    bar_fig = px.bar(
+                        rating_data,
+                        x="Veröffentlichungsdatum",
+                        y="Count",
+                        color="Bewertung",
+                        color_discrete_map=rating_colors,
+                        labels={ "Count": "Treffer"},
+                        barmode="group"
+                    )
+
+                    bar_fig.update_layout(
+                        legend_title=dict(font=dict(size=16)),
+                        legend=dict(font=dict(size=13))  # Optional: adjust legend item font size
+                    )
+
+                    st.plotly_chart(bar_fig)
+
+                    # Line chart with updated legend styling
+                    line_fig = px.line(
+                        rating_data,
+                        x="Veröffentlichungsdatum",
+                        y="Count",
+                        labels={ "Count": "Treffer"},  # Changed labels
+
+                        color="Bewertung",
+                        color_discrete_map=rating_colors
+                    )
+
+                    line_fig.update_layout(
+                        legend_title=dict(font=dict(size=16)),
+                        legend=dict(font=dict(size=13))
+                    )
+
+                    st.plotly_chart(line_fig)
+
                     
                     st.dataframe(rating_data.pivot(index="Veröffentlichungsdatum",
                                                 columns="Bewertung",
@@ -679,11 +858,15 @@ if uploaded_file:
                     y="Count", 
                     color="Tag",
                     title=f"Smart Tag Trend im Zeitverlauf ({time_granularity})",  # Changed title
-                    labels={"Veröffentlichungsdatum": "Date", "Count": "Treffer", "Tag": "SmartTag"},  # Changed labels
+                    labels={ "Count": "Treffer", "Tag": "SmartTag"},  # Changed labels
                     barmode="group",
                     text_auto=True,
                     color_discrete_map=color_map
                 )
+                bar_chart.update_layout(
+                                        legend_title=dict(font=dict(size=16)),
+                                        legend=dict(font=dict(size=13))  # Optional: change legend item font size
+                                    )
                 st.plotly_chart(bar_chart)
 
                 # 2. Line Chart
@@ -691,10 +874,15 @@ if uploaded_file:
                     tag_counts, 
                     x="Veröffentlichungsdatum", 
                     y="Count", 
-                    labels={"Veröffentlichungsdatum": "Date", "Count": "Treffer", "Tag": "SmartTag"},
+                    labels={"Count": "Treffer", "Tag": "SmartTag"},
                     color="Tag",
                     color_discrete_map=color_map
                 )
+
+                line_chart.update_layout(
+                        legend_title=dict(font=dict(size=16)),
+                        legend=dict(font=dict(size=13))  # Optional: change legend item font size
+                    )
                 st.plotly_chart(line_chart)
             
                 # 3. Pivot Table
@@ -737,10 +925,39 @@ if uploaded_file:
                 if not media_counts.empty:
                     media_colors = {m: px.colors.qualitative.Plotly[i%20] for i,m in enumerate(media_counts['Mediengattung'].unique())}
                     
-                    st.plotly_chart(px.bar(media_counts, x="Veröffentlichungsdatum", y="Count",
-                                        color="Mediengattung", color_discrete_map=media_colors, barmode="group"))
-                    st.plotly_chart(px.line(media_counts, x="Veröffentlichungsdatum", y="Count",
-                                        color="Mediengattung", color_discrete_map=media_colors))
+              # Bar chart with custom legend title font size
+                    bar_fig = px.bar(
+                        media_counts,
+                        x="Veröffentlichungsdatum",
+                        y="Count",
+                        color="Mediengattung",
+                        color_discrete_map=media_colors,
+                        barmode="group"
+                    )
+
+                    bar_fig.update_layout(
+                        legend_title=dict(font=dict(size=16)),
+                        legend=dict(font=dict(size=13))  # Optional: change legend item font size
+                    )
+
+                    st.plotly_chart(bar_fig)
+
+                    # Line chart with custom legend title font size
+                    line_fig = px.line(
+                        media_counts,
+                        x="Veröffentlichungsdatum",
+                        y="Count",
+                        color="Mediengattung",
+                        color_discrete_map=media_colors
+                    )
+
+                    line_fig.update_layout(
+                        legend_title=dict(font=dict(size=16)),
+                        legend=dict(font=dict(size=13))
+                    )
+
+                    st.plotly_chart(line_fig)
+
                     
                     st.dataframe(media_counts.pivot(index="Veröffentlichungsdatum",
                                                 columns="Mediengattung",
@@ -781,11 +998,41 @@ if uploaded_file:
                     ]).size().reset_index(name='Count')
 
                     rating_colors = {"Positiv": "green", "Negativ": "red", "Neutral": "blue"}
-                    st.plotly_chart(px.bar(rating_data, x="Veröffentlichungsdatum", y="Count",
-                                        color="Bewertung", color_discrete_map=rating_colors,barmode="group"))
-                    st.plotly_chart(px.line(rating_data, x="Veröffentlichungsdatum", y="Count",
-                                        color="Bewertung", color_discrete_map=rating_colors))
-                    
+
+                    # Bar chart
+                    bar_fig = px.bar(
+                        rating_data,
+                        x="Veröffentlichungsdatum",
+                        y="Count",
+                        color="Bewertung",
+                        color_discrete_map=rating_colors,
+                        barmode="group"
+                    )
+
+                    bar_fig.update_layout(
+                        legend_title=dict(font=dict(size=16)),  # Legend title font size
+                        legend=dict(font=dict(size=13))         # Legend item font size (optional)
+                    )
+
+                    st.plotly_chart(bar_fig)
+
+                    # Line chart
+                    line_fig = px.line(
+                        rating_data,
+                        x="Veröffentlichungsdatum",
+                        y="Count",
+                        color="Bewertung",
+                        color_discrete_map=rating_colors
+                    )
+
+                    line_fig.update_layout(
+                        legend_title=dict(font=dict(size=16)),
+                        legend=dict(font=dict(size=13))
+                    )
+
+                    st.plotly_chart(line_fig)
+
+
                     st.dataframe(rating_data.pivot(index="Veröffentlichungsdatum",
                                                 columns="Bewertung",
                                                 values="Count").fillna(0))
