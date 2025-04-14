@@ -1,8 +1,5 @@
-[theme.light]
+[theme]
 base = "light"
 primaryColor = "#006699"
 
 
-[theme.dark]
-base = "dark"
-primaryColor = "#006699"
