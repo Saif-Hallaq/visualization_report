@@ -218,7 +218,6 @@ if uploaded_file:
                 "Vierteljährlich": "Q", "Jährlich": "Y"}[time_granularity]
 
             # 1. Search Agent Analysis
-            st.subheader("Suchagenten-Analyse")
             df_melted = df_filtered.melt(
                 id_vars=['Veröffentlichungsdatum'], 
                 value_vars=search_agent_columns,
