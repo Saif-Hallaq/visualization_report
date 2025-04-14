@@ -469,7 +469,7 @@ if uploaded_file:
                         rating_counts,
                         names_col='Bewertung',
                         values_col='count',
-                        title="Bewertungen-verteilung",
+                        title="Bewertungsverteilung",
                         color_map=rating_colors  # your predefined color dict
                     )
 
@@ -767,7 +767,7 @@ if uploaded_file:
                         rating_counts,
                         names_col='Bewertung',
                         values_col='Treffer',
-                        title='Bewertungen-Verteilung',
+                        title='Bewertungsverteilung',
                         color_map=rating_colors
                     )
 
@@ -1044,7 +1044,7 @@ if uploaded_file:
                         df_ratings_grouped,
                         names_col='Bewertung',
                         values_col='count',
-                        title='Bewertungen-Verteilung',
+                        title='Bewertungsverteilung',
                         color_map=rating_colors
                     )
 
