@@ -23,8 +23,47 @@ tab = st.sidebar.radio(
     ]
 )
 
+# Custom CSS to modify the file uploader text
+custom_css = """
+    <style>
+        /* Hide the default 'Drag and drop file here' text */
+        div[data-testid="stFileUploaderDropzoneInstructions"] > div > span {
+            display: none;
+        }
+        /* Set the button text to '📂 Datei auswählen' */
+        div[data-testid="stFileUploaderDropzone"] > button {
+            color: transparent;
+            position: relative;
+        }
+        div[data-testid="stFileUploaderDropzone"] > button::after {
+            content: "📂 Datei auswählen";
+            color: black;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 16px;
+        }
+        /* Modify the instructions text */
+        div[data-testid="stFileUploaderDropzoneInstructions"] > div > small {
+            visibility: hidden;
+        }
+        div[data-testid="stFileUploaderDropzoneInstructions"] > div > small::before {
+            content: "Limit: 200 MB pro Datei • XLS, XLSX";
+            visibility: visible;
+            display: block;
+            color: #555;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+    </style>
+"""
+# Apply the custom CSS
+st.markdown(custom_css, unsafe_allow_html=True)
+
+
 with st.sidebar:
-    uploaded_file = st.file_uploader("Datei hierhin ziehen", type=["xls", "xlsx"])
+    uploaded_file = st.file_uploader("Datei hochladen", type=["xls", "xlsx"])
 
 
 
