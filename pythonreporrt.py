@@ -198,7 +198,7 @@ if uploaded_file:
                 "Suchagenten auswählen",
                 placeholder="Bitte Agenten auswählen",
                 all_agents
-            )
+             )
             
             if not selected_agents:
                 selected_agents = all_agents 
