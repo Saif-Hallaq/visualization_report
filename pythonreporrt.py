@@ -338,6 +338,7 @@ if uploaded_file:
                         media_data,
                         x="Veröffentlichungsdatum",
                         y="Count",
+                        title="Mediengattung",
                         color="Mediengattung",
                         color_discrete_map=media_colors,
                         barmode="group"
