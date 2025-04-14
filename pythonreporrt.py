@@ -316,7 +316,6 @@ if uploaded_file:
 
             # 2. Media Type Analysis
             if "Mediengattung" in df_filtered.columns:
-                st.subheader("Mediengattungen")
                 media_data = df_filtered.groupby([
                     pd.Grouper(key='Veröffentlichungsdatum', freq=freq),
                     'Mediengattung'
@@ -421,6 +420,7 @@ if uploaded_file:
                         rating_data,
                         x="Veröffentlichungsdatum",
                         y="Count",
+                        title="Bewertungen",
                         color="Bewertung",
                         color_discrete_map=rating_colors,
                         barmode="group"
@@ -634,7 +634,6 @@ if uploaded_file:
             # MEDIA TYPE ANALYSIS 
             # --------------------------
             if "Mediengattung" in df_filtered.columns:
-                st.subheader("Mediengattungen")
                 media_counts = df_filtered.groupby([
                     pd.Grouper(key='Veröffentlichungsdatum', freq=freq),
                     'Mediengattung'
@@ -648,6 +647,7 @@ if uploaded_file:
                     media_counts,
                     x="Veröffentlichungsdatum",
                     y="Count",
+                    title="Mediengattungen"
                     color="Mediengattung",
                     color_discrete_map=media_colors,
                     labels={ "Count": "Treffer"},  # Changed labels
@@ -704,7 +704,6 @@ if uploaded_file:
             # RATING ANALYSIS 
             # --------------------------
             if "Bewertung" in df_filtered.columns:
-                st.subheader("Bewertungen")
                 df_ratings = df_filtered[
                     df_filtered["Bewertung"].notna() & 
                     (df_filtered["Bewertung"] != "") 
@@ -724,6 +723,7 @@ if uploaded_file:
                         x="Veröffentlichungsdatum",
                         y="Count",
                         color="Bewertung",
+                        title="Bewertung",
                         color_discrete_map=rating_colors,
                         labels={ "Count": "Treffer"},
                         barmode="group"
