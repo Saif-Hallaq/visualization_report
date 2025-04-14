@@ -988,7 +988,6 @@ if uploaded_file:
             # RATING ANALYSIS 
             # --------------------------
             if "Bewertung" in df_filtered.columns:
-                st.subheader("Bewertungen")
                 df_ratings = df_filtered[
                     df_filtered["Bewertung"].notna() & 
                     (df_filtered["Bewertung"] != "") 
@@ -1008,6 +1007,9 @@ if uploaded_file:
                         x="Veröffentlichungsdatum",
                         y="Count",
                         color="Bewertung",
+                        title="Bewertung",
+                        labels={"Count": "Treffer"},  # Changed labels
+
                         color_discrete_map=rating_colors,
                         barmode="group"
                     )
@@ -1024,6 +1026,8 @@ if uploaded_file:
                         rating_data,
                         x="Veröffentlichungsdatum",
                         y="Count",
+                        labels={"Count": "Treffer"},  # Changed labels
+
                         color="Bewertung",
                         color_discrete_map=rating_colors
                     )
