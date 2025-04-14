@@ -400,7 +400,6 @@ if uploaded_file:
 
             # 3. Rating Analysis
             if "Bewertung" in df_filtered.columns:
-                st.subheader("Bewertungen")
                 df_ratings = df_filtered[
                     df_filtered["Bewertung"].notna() & 
                     (df_filtered["Bewertung"] != "")
