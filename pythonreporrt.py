@@ -236,7 +236,7 @@ if uploaded_file:
             selected_agents = st.multiselect(
                 "Suchagenten auswählen",         # Positional: label
                 all_agents,                      # Positional: options list
-                placeholder="Bitte Agenten auswählen"  # Keyword: placeholder
+                placeholder="SuchAgenten"  # Keyword: placeholder
             )
             
             if not selected_agents:
@@ -557,7 +557,7 @@ if uploaded_file:
             selected_tags = st.multiselect(
                 "Tags auswählen",  # Changed label
                 all_tags,
-                placeholder="Tags auswählen"
+                placeholder="Tags"
             )
             
             # If no tags selected, show nothing
@@ -838,7 +838,7 @@ if uploaded_file:
             selected_tags = st.multiselect(
                 "Smart-Tags auswählen",  # Changed label
                 all_tags,
-                placeholder="SmartTags auswählen"
+                placeholder="SmartTags"
 
             )
             
@@ -1178,7 +1178,7 @@ if uploaded_file:
                 search_agents.update(df[col].dropna().unique())
 
             # ------------------- Search Agent Filter -------------------
-            selected_agents = st.multiselect("Suchagenten auswählen", sorted(search_agents),placeholder="Agenten auswählen")
+            selected_agents = st.multiselect("Suchagenten auswählen", sorted(search_agents),placeholder="SuchAgenten")
 
             if selected_agents:
                 agent_condition = df[search_agent_columns].apply(
@@ -1193,7 +1193,7 @@ if uploaded_file:
                 smarttags.update(df[col].dropna().unique())
 
             # ------------------- Smart Tag Filter -------------------
-            selected_smarttags = st.multiselect("Smart-Tag auswählen", sorted(smarttags), placeholder="SmartTags auswählen")
+            selected_smarttags = st.multiselect("Smart-Tag auswählen", sorted(smarttags), placeholder="SmartTags")
 
             if selected_smarttags:
                 smarttag_condition = df[smarttag_columns].apply(
@@ -1208,7 +1208,7 @@ if uploaded_file:
                 tags.update(df[col].dropna().unique())
 
             # ------------------- Tag Filter -------------------
-            selected_tags = st.multiselect("Tags auswählen", sorted(tags), placeholder="Tags auswählen")
+            selected_tags = st.multiselect("Tags auswählen", sorted(tags), placeholder="Tags")
 
             if selected_tags:
                 tag_condition = df[tag_columns].apply(
