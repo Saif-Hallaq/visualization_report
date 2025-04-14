@@ -916,7 +916,6 @@ if uploaded_file:
             # MEDIA TYPE ANALYSIS 
             # --------------------------
             if "Mediengattung" in df_filtered.columns:
-                st.subheader("Mediengattungen")
                 media_counts = df_filtered.groupby([
                     pd.Grouper(key='Veröffentlichungsdatum', freq=freq),
                     'Mediengattung'
@@ -930,6 +929,9 @@ if uploaded_file:
                         media_counts,
                         x="Veröffentlichungsdatum",
                         y="Count",
+                        title="Mediengattungen",
+                        labels={"Count": "Treffer"},  # Changed labels
+
                         color="Mediengattung",
                         color_discrete_map=media_colors,
                         barmode="group"
@@ -947,6 +949,7 @@ if uploaded_file:
                         media_counts,
                         x="Veröffentlichungsdatum",
                         y="Count",
+                        labels={"Count": "Treffer"},  # Changed labels
                         color="Mediengattung",
                         color_discrete_map=media_colors
                     )
