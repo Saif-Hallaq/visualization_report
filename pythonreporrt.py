@@ -244,6 +244,7 @@ if uploaded_file:
                     agent_data,
                     x="Veröffentlichungsdatum",
                     y="Count",
+                    title=f"Suchagent im Zeitverlauf ({time_granularity})",  # Changed title
                     color="Suchagent",
                     color_discrete_map=colors,
                     barmode="group"
