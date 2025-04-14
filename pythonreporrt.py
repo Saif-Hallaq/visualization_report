@@ -647,7 +647,7 @@ if uploaded_file:
                     media_counts,
                     x="Veröffentlichungsdatum",
                     y="Count",
-                    title="Mediengattungen"
+                    title="Mediengattungen",
                     color="Mediengattung",
                     color_discrete_map=media_colors,
                     labels={ "Count": "Treffer"},  # Changed labels
