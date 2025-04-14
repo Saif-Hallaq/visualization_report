@@ -196,6 +196,7 @@ if uploaded_file:
             # Agent selection
             selected_agents = st.multiselect(
                 "Suchagenten auswählen",
+                placeholder="Bitte Agenten auswählen",
                 all_agents
             )
             
