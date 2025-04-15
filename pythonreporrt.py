@@ -252,10 +252,10 @@ if uploaded_file:
             # Time granularity
             time_granularity = st.selectbox(
                 "Zeitintervall auswählen",
-                ["Täglich", "Monatlich", "Vierteljährlich", "Jährlich"]
+                ["Täglich", "Monatlich", "Quartalsweise", "Jährlich"]
             )
             freq = {"Täglich": "D", "Monatlich": "ME", 
-                "Vierteljährlich": "Q", "Jährlich": "Y"}[time_granularity]
+                "Quartalsweise": "Q", "Jährlich": "Y"}[time_granularity]
 
             # 1. Search Agent Analysis
             df_melted = df_filtered.melt(
@@ -574,14 +574,14 @@ if uploaded_file:
             # Time granularity selection
             time_granularity = st.selectbox(
                 "Zeitintervall auswählen",
-                ["Täglich", "Monatlich", "Vierteljährlich", "Jährlich"]
+                ["Täglich", "Monatlich", "Quartalsweise", "Jährlich"]
             )
             
             # Apply time grouping
             freq = {
                 "Täglich": "D",
                 "Monatlich": "ME",
-                "Vierteljährlich": "Q",
+                "Quartalsweise": "Q",
                 "Jährlich": "Y"
             }[time_granularity]
 
@@ -856,14 +856,14 @@ if uploaded_file:
             # Time granularity selection
             time_granularity = st.selectbox(
                 "Zeitintervall auswählen",
-                ["Täglich", "Monatlich", "Vierteljährlich", "Jährlich"]
+                ["Täglich", "Monatlich", "Quartalsweise", "Jährlich"]
             )
             
             # Apply time grouping
             freq = {
                 "Täglich": "D",
                 "Monatlich": "ME",
-                "Vierteljährlich": "Q",
+                "Quartalsweise": "Q",
                 "Jährlich": "Y"
             }[time_granularity]
 
